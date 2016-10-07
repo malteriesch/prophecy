@@ -87,7 +87,7 @@ class CallCenter
         }
 
         // If no method prophecies defined, then it's a dummy, so we'll just return null
-        if ('__destruct' === $methodName || 0 == count($prophecy->getMethodProphecies())) {
+        if (('__destruct' === $methodName || 0 == count($prophecy->getMethodProphecies())) && !$this->disableSpies) {
             $this->recordedCalls[] = new Call($methodName, $arguments, null, null, $file, $line);
 
             return null;
