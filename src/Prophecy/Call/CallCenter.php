@@ -32,6 +32,11 @@ class CallCenter
     private $recordedCalls = array();
 
     /**
+     * @var bool
+     */
+    private $disableSpies = false;
+
+    /**
      * Initializes call center.
      *
      * @param StringUtil $util
@@ -39,6 +44,15 @@ class CallCenter
     public function __construct(StringUtil $util = null)
     {
         $this->util = $util ?: new StringUtil;
+    }
+
+    /**
+     * @param boolean $disableSpies
+     */
+    public function disableSpies(bool $disableSpies = true)
+    {
+        $this->disableSpies = $disableSpies;
+        return $this;
     }
 
     /**
@@ -141,12 +155,17 @@ class CallCenter
     {
         $classname = get_class($prophecy->reveal());
         $argstring = implode(', ', array_map(array($this->util, 'stringify'), $arguments));
-        $expected  = implode("\n", array_map(function (MethodProphecy $methodProphecy) {
-            return sprintf('  - %s(%s)',
-                $methodProphecy->getMethodName(),
-                $methodProphecy->getArgumentsWildcard()
-            );
-        }, call_user_func_array('array_merge', $prophecy->getMethodProphecies())));
+        $expected  = count($prophecy->getMethodProphecies()) > 0
+            ?
+            implode("\n", array_map(function (MethodProphecy $methodProphecy) {
+                return sprintf('  - %s(%s)',
+                    $methodProphecy->getMethodName(),
+                    $methodProphecy->getArgumentsWildcard()
+                );
+            }, call_user_func_array('array_merge', $prophecy->getMethodProphecies())))
+            :
+            'none'
+        ;
 
         return new UnexpectedCallException(
             sprintf(

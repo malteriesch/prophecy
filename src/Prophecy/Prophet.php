@@ -70,13 +70,15 @@ class Prophet
      *
      * @param null|string $classOrInterface Class or interface name
      *
+     * @param bool $disableSpies If set to true then unexpected method calls will always throw an exception
+     *                           even if no other expectations are set
      * @return ObjectProphecy
      */
-    public function prophesize($classOrInterface = null)
+    public function prophesize($classOrInterface = null, $disableSpies = false)
     {
         $this->prophecies[] = $prophecy = new ObjectProphecy(
             new LazyDouble($this->doubler),
-            new CallCenter($this->util),
+            (new CallCenter($this->util))->disableSpies($disableSpies),
             $this->revealer
         );
 
